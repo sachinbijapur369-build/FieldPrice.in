@@ -3,17 +3,47 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>404 - Page Not Found | FieldPrice</title>
-    <style>
-        body { background: #121212; color: #f2f2f2; font-family: sans-serif; text-align: center; padding: 60px 20px; }
-        h1 { font-size: 3rem; color: #22c55e; }
-        a { color: #22c55e; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
+    <title>Page Not Found | FieldPrice</title>
+    <meta name="description" content="The requested FieldPrice page was not found. Return home or submit an industrial sourcing requirement." />
+    <meta name="robots" content="noindex, follow" />
+    <meta name="theme-color" content="#050706" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <h1>404</h1>
-    <p>Page not found.</p>
-    <p><a href="https://fieldprice.in/">Return to Home</a></p>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="progress-bar" role="progressbar" aria-hidden="true"></div>
+    <nav id="mainNav" aria-label="Main navigation">
+        <div class="logo"><a href="index.html" aria-label="FieldPrice home"><span class="logo-f">Field</span><span class="logo-p">Price</span></a></div>
+        <ul class="nav-links" id="navLinks" role="menubar">
+            <li role="none"><a href="index.html" role="menuitem">Home</a></li>
+            <li role="none"><a href="lubricants.html" role="menuitem">Lubricants</a></li>
+            <li role="none"><a href="bearings.html" role="menuitem">Bearings</a></li>
+            <li role="none"><a href="belts.html" role="menuitem">Belt Drives</a></li>
+            <li role="none"><a href="compressors.html" role="menuitem">Compressors</a></li>
+            <li role="none"><a href="pressbreak.html" role="menuitem">Press Brake</a></li>
+            <li role="none"><a href="contact.html" role="menuitem">Contact</a></li>
+        </ul>
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </nav>
+    <main id="main-content">
+        <section class="ph">
+            <div class="wrap">
+                <div class="ph-inner">
+                    <span class="ph-tag">404</span>
+                    <h1>This page is outside the sourcing grid.</h1>
+                    <p>The page may have moved, or the URL may be incorrect. You can return home or send a requirement directly.</p>
+                    <div class="ph-btns">
+                        <a href="index.html" class="btn btn-green btn-lg">Return Home</a>
+                        <a href="contact.html" class="btn btn-ghost-dk btn-lg">Submit Requirement</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="js/main.js" defer></script>
 </body>
 </html>

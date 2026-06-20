@@ -1,3 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /.git/
+Disallow: /.github/
+Disallow: /index_original.html
+Disallow: /index_user_restored.html
+Disallow: /get_page_content.js
+Disallow: /list_ids.js
+Disallow: /restore.ps1
+
 Sitemap: https://fieldprice.in/sitemap.xml
