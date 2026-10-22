@@ -338,25 +338,202 @@ function initMagneticButtons() {
 }
 
 /* ══════════════════════════════════════
-   Card Tilt Effect — Subtle 3D on hover
+   Magnifying Glass Cursor Effect
    ══════════════════════════════════════ */
-function initCardTilt() {
-    if (prefersReducedMotion || window.innerWidth < 768) return;
+function initMagnifierCursor() {
+    // Only run on non-touch devices with fine pointer
+    if (prefersReducedMotion || window.matchMedia('(pointer: coarse)').matches) return;
 
-    qsa('.console-panel, .intel-card').forEach((card) => {
+    // Create cursor elements
+    const mag = document.createElement('div');
+    mag.id = 'fp-magnifier';
+    mag.className = 'fp-magnifier';
+    mag.setAttribute('aria-hidden', 'true');
+    mag.innerHTML = `
+        <div class="fp-mag-lens">
+            <div class="fp-mag-reticle"></div>
+            <div class="fp-mag-glare"></div>
+            <div class="fp-mag-badge">1.5x SPEC</div>
+        </div>
+        <svg class="fp-mag-handle" viewBox="0 0 24 24" fill="none">
+            <path d="M15 15L22 22" stroke="#52665b" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M17.5 17.5L21.5 21.5" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+    `;
+
+    const dot = document.createElement('div');
+    dot.id = 'fp-cursor-dot';
+    dot.className = 'fp-cursor-dot';
+    dot.setAttribute('aria-hidden', 'true');
+
+    const toggle = document.createElement('button');
+    toggle.id = 'fp-lens-toggle';
+    toggle.className = 'fp-lens-toggle active';
+    toggle.setAttribute('aria-label', 'Toggle Magnifier Lens (M)');
+    toggle.setAttribute('title', 'Toggle Inspection Lens (M)');
+    toggle.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">search</span><span>Inspect Lens Active</span>';
+
+    document.body.appendChild(mag);
+    document.body.appendChild(dot);
+    document.body.appendChild(toggle);
+
+    let isEnabled = true;
+    document.body.classList.add('fp-mag-enabled');
+
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+    let currX = targetX;
+    let currY = targetY;
+    let isVisible = false;
+
+    function setLensState(active) {
+        isEnabled = active;
+        if (isEnabled) {
+            document.body.classList.add('fp-mag-enabled');
+            toggle.classList.add('active');
+            toggle.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">search</span><span>Inspect Lens Active</span>';
+            if (isVisible) {
+                mag.classList.add('visible');
+                dot.classList.add('visible');
+            }
+        } else {
+            document.body.classList.remove('fp-mag-enabled');
+            toggle.classList.remove('active');
+            toggle.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">search_off</span><span>Inspect Lens Off (M)</span>';
+            mag.classList.remove('visible');
+            dot.classList.remove('visible');
+        }
+    }
+
+    toggle.addEventListener('click', () => {
+        setLensState(!isEnabled);
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'm' || e.key === 'M') {
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+            setLensState(!isEnabled);
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+
+        if (!isVisible) {
+            isVisible = true;
+            if (isEnabled) {
+                mag.classList.add('visible');
+                dot.classList.add('visible');
+            }
+        }
+
+        // Determine hover context
+        const target = e.target;
+        const isInteractive = Boolean(target.closest('a, button, [role="button"], input, select, textarea, .hamburger'));
+        const isInspect = Boolean(target.closest('.prod-card, .intel-card, .ref-table, .pricing-example, .key-spec, .metric-cell, .why-card, .how-card, .detail-card, .buying-step, [data-magnify]'));
+
+        mag.classList.toggle('on-interactive', isInteractive && !isInspect);
+        dot.classList.toggle('on-interactive', isInteractive);
+        mag.classList.toggle('on-inspect', isInspect);
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
+        isVisible = false;
+        mag.classList.remove('visible');
+        dot.classList.remove('visible');
+    });
+
+    // Lerp loop for fluid 60-120fps motion
+    function render() {
+        if (isEnabled && isVisible) {
+            currX += (targetX - currX) * 0.22;
+            currY += (targetY - currY) * 0.22;
+            mag.style.transform = `translate3d(${currX.toFixed(2)}px, ${currY.toFixed(2)}px, 0)`;
+            dot.style.transform = `translate3d(${targetX.toFixed(2)}px, ${targetY.toFixed(2)}px, 0)`;
+        }
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+}
+
+/* ══════════════════════════════════════
+   Parallax Methods — Mouse, Scroll & Tilt
+   ══════════════════════════════════════ */
+function initParallax() {
+    if (prefersReducedMotion) return;
+
+    // 1. Hero Multi-Layer Mouse Parallax
+    const hero = qs('.hero');
+    if (hero && window.innerWidth >= 768) {
+        const bg = qs('.hero-bg', hero);
+        const overlay = qs('.hero-overlay', hero);
+        const consolePanel = qs('.hero-console', hero);
+        const copy = qs('.hero-copy', hero);
+
+        hero.addEventListener('mousemove', (e) => {
+            const rect = hero.getBoundingClientRect();
+            const normX = (e.clientX - rect.left) / rect.width - 0.5;
+            const normY = (e.clientY - rect.top) / rect.height - 0.5;
+
+            if (bg) bg.style.transform = `translate3d(${normX * -24}px, ${normY * -18}px, 0) scale(1.03)`;
+            if (overlay) overlay.style.transform = `translate3d(${normX * 12}px, ${normY * 10}px, 0)`;
+            if (consolePanel) {
+                consolePanel.style.transform = `perspective(1000px) rotateY(${normX * 8}deg) rotateX(${-normY * 8}deg) translate3d(${normX * 14}px, ${normY * 12}px, 12px)`;
+            }
+            if (copy) copy.style.transform = `translate3d(${normX * 6}px, ${normY * 6}px, 0)`;
+        }, { passive: true });
+
+        hero.addEventListener('mouseleave', () => {
+            [bg, overlay, consolePanel, copy].forEach((el) => {
+                if (el) {
+                    el.style.transform = '';
+                    el.style.transition = 'transform 0.65s var(--ease-out)';
+                    setTimeout(() => { el.style.transition = ''; }, 650);
+                }
+            });
+        });
+    }
+
+    // 2. Interactive Card Spotlight & 3D Tilt Parallax
+    const cards = qsa('.prod-card, .intel-card, .why-card, .how-card, .console-panel, .detail-card, .buying-step, .industry-card');
+    cards.forEach((card) => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width - 0.5;
-            const y = (e.clientY - rect.top) / rect.height - 0.5;
-            card.style.transform = `perspective(800px) rotateY(${x * 4}deg) rotateX(${-y * 4}deg)`;
-        });
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+
+            if (window.innerWidth >= 768) {
+                const normX = (x / rect.width) - 0.5;
+                const normY = (y / rect.height) - 0.5;
+                const tiltX = -normY * 6.5;
+                const tiltY = normX * 6.5;
+                card.style.transform = `perspective(850px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateZ(6px)`;
+            }
+        }, { passive: true });
 
         card.addEventListener('mouseleave', () => {
             card.style.transform = '';
-            card.style.transition = 'transform 0.5s cubic-bezier(.16, 1, .3, 1)';
+            card.style.transition = 'transform 0.5s var(--ease-out)';
             setTimeout(() => { card.style.transition = ''; }, 500);
         });
     });
+
+    // 3. Scroll Velocity Parallax for Brand Marquee
+    const marqueeTrack = qs('.marquee-track');
+    if (marqueeTrack) {
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const delta = Math.abs(currentScrollY - lastScrollY);
+            lastScrollY = currentScrollY;
+            const speedBoost = Math.min(delta * 0.12, 1.8);
+            marqueeTrack.style.animationDuration = `${Math.max(16 - speedBoost * 5, 8)}s`;
+        }, { passive: true });
+    }
 }
 
 /* ══════════════════════════════════════
@@ -415,7 +592,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initMetrics();
     initGsap();
     initMagneticButtons();
-    initCardTilt();
+    initParallax();
+    initMagnifierCursor();
     initContactForm();
     initSmoothScroll();
 });
