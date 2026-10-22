@@ -376,7 +376,7 @@ function initContactForm() {
 
         const data = new FormData(form);
         const message = [
-            'Hi FieldPrice, I need a verified quote.',
+            'Hi FieldPrice.in, I need a verified quote.',
             `Company: ${data.get('company') || ''}`,
             `Contact: ${data.get('name') || ''}`,
             `Email: ${data.get('email') || ''}`,
@@ -386,7 +386,7 @@ function initContactForm() {
         ].join('\n');
 
         if (status) status.textContent = 'Opening WhatsApp with your requirement...';
-        window.open(`https://wa.me/917022861308?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+        window.open(`https://wa.me/919535657931?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
     });
 }
 

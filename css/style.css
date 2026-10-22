@@ -416,8 +416,14 @@ nav.scrolled {
 }
 
 .logo-p,
-.f-logo span {
+.f-logo span:first-of-type {
     color: var(--accent);
+}
+
+.logo-d,
+.f-logo span.logo-d {
+    color: var(--text-soft);
+    font-weight: 500;
 }
 
 .nav-links {
