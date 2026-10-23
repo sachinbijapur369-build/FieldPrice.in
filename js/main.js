@@ -338,126 +338,6 @@ function initMagneticButtons() {
 }
 
 /* ══════════════════════════════════════
-   Magnifying Glass Cursor Effect
-   ══════════════════════════════════════ */
-function initMagnifierCursor() {
-    // Only run on non-touch devices with fine pointer
-    if (prefersReducedMotion || window.matchMedia('(pointer: coarse)').matches) return;
-
-    // Create cursor elements
-    const mag = document.createElement('div');
-    mag.id = 'fp-magnifier';
-    mag.className = 'fp-magnifier';
-    mag.setAttribute('aria-hidden', 'true');
-    mag.innerHTML = `
-        <div class="fp-mag-lens">
-            <div class="fp-mag-reticle"></div>
-            <div class="fp-mag-glare"></div>
-            <div class="fp-mag-badge">1.5x SPEC</div>
-        </div>
-        <svg class="fp-mag-handle" viewBox="0 0 24 24" fill="none">
-            <path d="M15 15L22 22" stroke="#52665b" stroke-width="3.2" stroke-linecap="round"/>
-            <path d="M17.5 17.5L21.5 21.5" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-    `;
-
-    const dot = document.createElement('div');
-    dot.id = 'fp-cursor-dot';
-    dot.className = 'fp-cursor-dot';
-    dot.setAttribute('aria-hidden', 'true');
-
-    const toggle = document.createElement('button');
-    toggle.id = 'fp-lens-toggle';
-    toggle.className = 'fp-lens-toggle active';
-    toggle.setAttribute('aria-label', 'Toggle Magnifier Lens (M)');
-    toggle.setAttribute('title', 'Toggle Inspection Lens (M)');
-    toggle.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">search</span><span>Inspect Lens Active</span>';
-
-    document.body.appendChild(mag);
-    document.body.appendChild(dot);
-    document.body.appendChild(toggle);
-
-    let isEnabled = true;
-    document.body.classList.add('fp-mag-enabled');
-
-    let targetX = window.innerWidth / 2;
-    let targetY = window.innerHeight / 2;
-    let currX = targetX;
-    let currY = targetY;
-    let isVisible = false;
-
-    function setLensState(active) {
-        isEnabled = active;
-        if (isEnabled) {
-            document.body.classList.add('fp-mag-enabled');
-            toggle.classList.add('active');
-            toggle.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">search</span><span>Inspect Lens Active</span>';
-            if (isVisible) {
-                mag.classList.add('visible');
-                dot.classList.add('visible');
-            }
-        } else {
-            document.body.classList.remove('fp-mag-enabled');
-            toggle.classList.remove('active');
-            toggle.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">search_off</span><span>Inspect Lens Off (M)</span>';
-            mag.classList.remove('visible');
-            dot.classList.remove('visible');
-        }
-    }
-
-    toggle.addEventListener('click', () => {
-        setLensState(!isEnabled);
-    });
-
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'm' || e.key === 'M') {
-            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
-            setLensState(!isEnabled);
-        }
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        targetX = e.clientX;
-        targetY = e.clientY;
-
-        if (!isVisible) {
-            isVisible = true;
-            if (isEnabled) {
-                mag.classList.add('visible');
-                dot.classList.add('visible');
-            }
-        }
-
-        // Determine hover context
-        const target = e.target;
-        const isInteractive = Boolean(target.closest('a, button, [role="button"], input, select, textarea, .hamburger'));
-        const isInspect = Boolean(target.closest('.prod-card, .intel-card, .ref-table, .pricing-example, .key-spec, .metric-cell, .why-card, .how-card, .detail-card, .buying-step, [data-magnify]'));
-
-        mag.classList.toggle('on-interactive', isInteractive && !isInspect);
-        dot.classList.toggle('on-interactive', isInteractive);
-        mag.classList.toggle('on-inspect', isInspect);
-    }, { passive: true });
-
-    document.addEventListener('mouseleave', () => {
-        isVisible = false;
-        mag.classList.remove('visible');
-        dot.classList.remove('visible');
-    });
-
-    // Lerp loop for fluid 60-120fps motion
-    function render() {
-        if (isEnabled && isVisible) {
-            currX += (targetX - currX) * 0.22;
-            currY += (targetY - currY) * 0.22;
-            mag.style.transform = `translate3d(${currX.toFixed(2)}px, ${currY.toFixed(2)}px, 0)`;
-            dot.style.transform = `translate3d(${targetX.toFixed(2)}px, ${targetY.toFixed(2)}px, 0)`;
-        }
-        requestAnimationFrame(render);
-    }
-    requestAnimationFrame(render);
-}
-
-/* ══════════════════════════════════════
    Parallax Methods — Mouse, Scroll & Tilt
    ══════════════════════════════════════ */
 function initParallax() {
@@ -593,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initGsap();
     initMagneticButtons();
     initParallax();
-    initMagnifierCursor();
     initContactForm();
     initSmoothScroll();
 });
